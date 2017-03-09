@@ -1,52 +1,32 @@
+#!/usr/bin/env python
+# -*- encoding: utf-8 -*-
 '''
 https://github.com/xdyuchen/AudioScore
 https://github.com/fffy2366/audio-compare
+[音频相似度对比 Demo](http://blog.csdn.net/xdyuchen/article/details/50014351)
+[余弦距离、欧氏距离和杰卡德相似性度量的对比分析](http://www.cnblogs.com/chaosimple/archive/2013/06/28/3160839.html)
 '''
 import librosa
+import librosa.display
 from dtw import dtw
 from numpy.linalg import norm
 from scipy import spatial
 import numpy as np
-from os import listdir
+import matplotlib.pyplot as plt
 
-alphabets = ['a', 'aa', 'ae', 'ai', 'e', 'ee', 'o', 'ou', 'u', 'uu']
-
-mfcc_values = {
-}
-
-def load_all():
-    for alphabet in alphabets:
-        reference_files = listdir('/home/nmd/recordings/alphabets/%s' %alphabet)
-        for reference_file in reference_files:
-            y2, sr2 = librosa.load('/home/nmd/recordings/alphabets/%s/%s' %(alphabet, reference_file))
-            mfcc2 = librosa.feature.mfcc(y2, sr2)
-            if alphabet not in mfcc_values:
-                mfcc_values[alphabet] = []                
-            mfcc_values[alphabet].append((mfcc2, reference_file))
-    
-    print mfcc_values.keys()
-    
 def my_custom_norm(x, y):
     return spatial.distance.cosine(x, y)
 
-def get_distance(alphabet, audio_file):
-    y1, sr1 = librosa.load(audio_file)
-    mfcc1 = librosa.feature.mfcc(y1,sr1)
-    distance_matrix = {}
-    if alphabet not in mfcc_values:
-        return {alphabet: '1000000000'}
-    for (mfcc2, reference_file) in mfcc_values[str(alphabet)]:
-        dist, cost, accumulated_cost, path = dtw(mfcc1.T, mfcc2.T, dist=my_custom_norm)
-        distance_matrix[reference_file] = '%.4f' %dist
-    return distance_matrix
-
-def test():
+def get_distance():
     y1, sr1 = librosa.load('./P11-9T.wav')
-    y2, sr2 = librosa.load('./P11-9T.wav')
-    mfcc1 = librosa.feature.mfcc(y1, sr1)
-    mfcc2 = librosa.feature.mfcc(y2, sr2)
-    # print mfcc2
-    dist, cost, accumulated_cost, path = dtw(mfcc1.T, mfcc2.T, dist=my_custom_norm)
-    print '%.4f' %dist
+    librosa.display.waveplot(y1, sr=sr1, alpha=0.25)
+    plt.show()  #To display the plots graphically
+    # y2, sr2 = librosa.load('./P11-9T.wav')
+    # mfcc1 = librosa.feature.mfcc(y1, sr1)
+    # mfcc2 = librosa.feature.mfcc(y2, sr2)
+    print mfcc2
+    # dist, cost, accumulated_cost, path = dtw(mfcc1.T, mfcc2.T, dist=my_custom_norm)
+    # print '%.4f' %dist
     # print cost
-test()
+if __name__ == '__main__':
+    get_distance()
